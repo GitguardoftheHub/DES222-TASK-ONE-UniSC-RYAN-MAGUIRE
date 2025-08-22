@@ -5,6 +5,7 @@
     --page-bg: #fff;
     --banner-bg: #4c4747;
     --banner-fg: #fff;
+    
 }
 
 body {
@@ -191,11 +192,48 @@ body {
 
 /* demo image cards */
 .card {
-    /* background: rgba(255,255,255,0.12); */
-    /* border-radius: 6px; */
     padding: 0px;
     overflow: hidden;
-    /* min-height: 90px; */
+    position: relative;
+}
+
+
+/* The overlay fills the card, fades/flies in on hover/focus */
+.card-overlay {
+  position: absolute; inset: 0;
+  display: grid;
+  place-items: center;                 /* center horizontally & vertically */
+  background: rgba(0,0,0,0.55);        /* uniform overlay instead of bottom gradient */
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.card-overlay__content {
+  box-sizing: border-box;
+  width: min(100%, 60ch);              /* readable line length */
+  max-height: 80%;                     /* long text scrolls */
+  overflow: auto;
+  padding: 16px 18px;
+  text-align: center;                  /* center lines */
+  color: #fff;
+}
+
+.card:hover .card-overlay,
+.card:focus-within .card-overlay,
+.card:active .card-overlay {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* When toggled open on touch */
+.card.is-open .card-overlay {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 
@@ -300,42 +338,41 @@ body {
 
 /* Single breakpoint for the one-column/mobile layout */
 @media (max-width: 1000px) {
-  
-  #backgroundImage img {
-    width: 100%;
-    height: auto;          /* or: height: 100%; object-fit: cover; for a true cover */
-    display: block; 
-}
+    
+    /* Collapse to one fluid column */
+  .page { grid-template-columns: minmax(0, 1fr); }
 
-    /* Collapse to one column (fluid width) */
-  .page { grid-template-columns: 1fr; }
-  .col  { grid-column: 1; grid-row: auto; }
 
-  /* Don’t “paint” 3 red stripes; each .col has its own red bg */
-  .cb1, .cb2, .cb3 { display: none; }
+  .cb1 {
+    display: block;
+    grid-column: 1;
+    grid-row: 1 / -1;        /* from the triangle row to the end */
+    align-self: stretch;
+    justify-self: stretch;
+    position: relative;      /* so z-index works */
+    z-index: 1;              /* behind everything else */
+  }
 
-  /* Top area: keep only the first big triangle; banner sits under it */
+  /* Don’t paint the other 2 red stripes; */
+  .cb2, .cb3 { display: none; }
+
+  /* Keep only first big triangle */
   .tri.t2, .tri.t3 { display: none; }
   .tri.t1 { grid-column: 1; }
-  .banner {
-    grid-column: 1;
-    margin-top: 16px;           /* was 200px */
-    padding-bottom: 40px;
-  }
 
-  /* Hide the banner-wide markers; use per-column markers instead */
+  /* Banner under triangle */
+  .banner { grid-column: 1; margin-top: 200px; padding-bottom: 40px; }
+
+  /* Hide banner-wide markers; we’ll show per-column markers */
   .markers { display: none; }
 
-  /* Per-column marker (big white triangle + numeral) */
-  .col {
-    position: relative;
-    padding-top: 72px;          /* room for the hanging marker */
-  }
+  /* Stack columns; override your base grid-row:2 */
+  .col { grid-column: 1; grid-row: auto; position: relative; padding-top: 72px; }
+
+  /* Per-column marker (triangle + numeral) */
   .col::before {
     content: "";
-    position: absolute;
-    left: 50%; top: 0;
-    transform: translate(-50%, -45%);
+    position: absolute; left: 50%; top: 0; transform: translate(-50%, -45%);
     width: 0; height: 0;
     border-left: 40px solid transparent;
     border-right: 40px solid transparent;
@@ -344,16 +381,23 @@ body {
     z-index: 4; pointer-events: none;
   }
   .col::after {
-    position: absolute;
-    left: 50%; top: 0;
-    transform: translate(-50%, -115%);
-    font-size: 28px; font-weight: 800; color: #000;
-    z-index: 5; pointer-events: none;
+    position: absolute; left: 50%; top: 0; transform: translate(-50%, -75%);
+    font-size: 28px; font-weight: 800; color: #000; z-index: 5; pointer-events: none;
   }
   .c1::after { content: "I"; }
   .c2::after { content: "II"; }
   .c3::after { content: "III"; }
 
-  /* Reference sections follow naturally */
+
+  /* References follow the stack */
   #referenceListBanner, #references { grid-column: 1; grid-row: auto; }
+
+  /* Clamp any over-wide images inside the column (prevents min-content locks) */
+  .tri-img { width: 100%; margin-left: 0; margin-right: 0; }
+  .card > img, .banner img { max-width: 100%; height: auto; display: block; }
+
+  /* Your bg image stays centered but can’t force width */
+  #backgroundImage { place-self: center; }
+  #backgroundImage img { width: 100%; height: auto; display: block; }
 }
+
