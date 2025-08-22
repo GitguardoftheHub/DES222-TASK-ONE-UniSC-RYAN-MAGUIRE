@@ -1,5 +1,6 @@
 :root {
-    --gap: 24px;
+    --content-max: 1000px;      /* your fixed desktop width */
+    --gap: clamp(12px, 3vw, 24px);  /* smaller gutters on small screens */
     --col-bg: #a74444; /* red columns */
     --page-bg: #fff;
     --banner-bg: #4c4747;
@@ -7,32 +8,41 @@
 }
 
 body {
-    display: flex;
+    /* display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; */
+    margin: 0;
 }
 
 #mainContainer {
-    max-width: 1200px;
+    max-width: none;
+    width: 100%;
     display: grid;
 }
 
 #backgroundImage {
     grid-area: 1 / 1;
     z-index: 0;
-    place-self: stretch;
+    place-self: center;
 }
+
 
 #contentContainer {
     max-width: 1000px;
     grid-area: 1 / 1;
     z-index: 1;
     place-self: start center;
+
+    inline-size: min(100%, 1000px); 
+    /* inline-size: min(100%, var(--content-max));  fluid ≤ desktop cap */
+    margin-inline: auto;        /* center within the parent cell */
+    padding-inline: clamp(12px, 4vw, 24px);  /* nice mobile gutters */
+    min-inline-size: 0;         /* <-- crucial: allow shrink below min-content */
 }
 
-#obeyImage {
+/* #obeyImage {
     object-fit: contain;  
-}
+} */
 
 .page {
     display: grid;
@@ -43,6 +53,7 @@ body {
     align-items: start;
     align-content: start;
     position: relative; /* establishes a containing block (not strictly necessary) */
+    min-inline-size: 0;
 }
 
 /* making the red columns extend all the way to the top is quite tricky
@@ -229,45 +240,36 @@ body {
     padding: 16px;
 }
 
-/* One breakpoint → stack the three stages vertically with their own markers */
+/*
 @media (max-width: 900px) {
-  /* Collapse grid to one column */
   .page { grid-template-columns: 1fr; }
-
-  /* Don’t paint the 3 background stripes on mobile; use each .col’s own bg */
   .cb1, .cb2, .cb3 { display: none; }
-
-  /* Top triangles: keep only the first */
   .tri.t2, .tri.t3 { display: none; }
   .tri.t1 { grid-column: 1; }
-
-  /* Banner: small nudge, and hide the banner-wide marker strip */
   .banner {
     grid-column: 1;
-    margin-top: 200px;            /* was 200px */
-    padding-bottom: 40px;        /* just enough space if anything hangs */
+    margin-top: 200px;
+    padding-bottom: 40px;
   }
-  .markers { display: none; }     /* we’ll add per-column markers instead */
+  .markers { display: none; }
 
-  /* Columns: stack, and make room for a marker that hangs from the top */
   .col {
     grid-column: 1;
-    grid-row: auto;              /* override base grid-row: 2 so they stack */
+    grid-row: auto;
     position: relative;
-    padding-top: 72px;           /* space for the triangle marker */
+    padding-top: 72px;
   }
 
-  /* Per-column marker: big white triangle + numeral centered above each .col */
   .col::before {
     content: "";
     position: absolute;
     left: 50%;
     top: 0;
-    transform: translate(-50%, -45%);     /* hangs into the column */
+    transform: translate(-50%, -45%);
     width: 0; height: 0;
     border-left: 40px solid transparent;
     border-right: 40px solid transparent;
-    border-top: 60px solid #fff;          /* white marker */
+    border-top: 60px solid #fff;
     filter: drop-shadow(0 2px 0 rgba(0,0,0,0.25));
     z-index: 4;
     pointer-events: none;
@@ -276,7 +278,7 @@ body {
     position: absolute;
     left: 50%;
     top: 0;
-    transform: translate(-50%, -115%);    /* centers text on triangle */
+    transform: translate(-50%, -115%);
     font-size: 28px;
     font-weight: 800;
     color: #000;
@@ -287,7 +289,71 @@ body {
   .c2::after { content: "II"; }
   .c3::after { content: "III"; }
 
-  /* Reference sections follow after stacked columns */
   #referenceListBanner,
   #references { grid-row: auto; grid-column: 1; }
+}
+*/
+
+.col, .banner, .tri { min-inline-size: 0; }
+
+
+
+/* Single breakpoint for the one-column/mobile layout */
+@media (max-width: 1000px) {
+  
+  #backgroundImage img {
+    width: 100%;
+    height: auto;          /* or: height: 100%; object-fit: cover; for a true cover */
+    display: block; 
+}
+
+    /* Collapse to one column (fluid width) */
+  .page { grid-template-columns: 1fr; }
+  .col  { grid-column: 1; grid-row: auto; }
+
+  /* Don’t “paint” 3 red stripes; each .col has its own red bg */
+  .cb1, .cb2, .cb3 { display: none; }
+
+  /* Top area: keep only the first big triangle; banner sits under it */
+  .tri.t2, .tri.t3 { display: none; }
+  .tri.t1 { grid-column: 1; }
+  .banner {
+    grid-column: 1;
+    margin-top: 16px;           /* was 200px */
+    padding-bottom: 40px;
+  }
+
+  /* Hide the banner-wide markers; use per-column markers instead */
+  .markers { display: none; }
+
+  /* Per-column marker (big white triangle + numeral) */
+  .col {
+    position: relative;
+    padding-top: 72px;          /* room for the hanging marker */
+  }
+  .col::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 0;
+    transform: translate(-50%, -45%);
+    width: 0; height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-top: 60px solid #fff;
+    filter: drop-shadow(0 2px 0 rgba(0,0,0,0.25));
+    z-index: 4; pointer-events: none;
+  }
+  .col::after {
+    position: absolute;
+    left: 50%; top: 0;
+    transform: translate(-50%, -115%);
+    font-size: 28px; font-weight: 800; color: #000;
+    z-index: 5; pointer-events: none;
+  }
+  .c1::after { content: "I"; }
+  .c2::after { content: "II"; }
+  .c3::after { content: "III"; }
+
+  /* Reference sections follow naturally */
+  #referenceListBanner, #references { grid-column: 1; grid-row: auto; }
 }
