@@ -11,3 +11,4 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') document.querySelectorAll('.card.is-open')
     .forEach(c => c.classList.remove('is-open'));
 });
+
