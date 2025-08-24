@@ -63,7 +63,7 @@ body {
  */
 
 .col-bg {
-  grid-row: 1 / -1;          /* from the top row to the last row */
+  grid-row: 1 / 999;          /* from the top row to the last row */
   background: var(--col-bg); /* your red */
   position: relative;        /* <-- ensures z-index takes effect */
   z-index: 1;                /* sits behind triangles/banner/markers/cols */
@@ -401,3 +401,21 @@ body {
   #backgroundImage img { width: 100%; height: auto; display: block; }
 }
 
+#references {
+  max-width: 100%;
+}
+
+.reference-list {
+  list-style-type: none; /* removes bullets */
+  padding: 0;
+  margin: 0;
+  max-width: 100%;
+  word-wrap: break-word;      /* legacy, widely supported */
+  overflow-wrap: anywhere;    /* modern, flexible */
+}
+
+.reference-list li {
+  padding-left: 2em;
+  text-indent: -2em;
+  margin-bottom: 1em; /* spacing between refs */
+}
